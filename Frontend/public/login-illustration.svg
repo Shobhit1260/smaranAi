@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <style>
+    .person { fill: #FF4B2B; }
+    .laptop { fill: #2B2D42; }
+  </style>
+  <g class="person">
+    <path d="M250,150 c-30,0 -54,24 -54,54 s24,54 54,54 s54,-24 54,-54 s-24,-54 -54,-54z"/>
+    <path d="M250,280 c-50,0 -150,25 -150,75 v45 h300 v-45 c0,-50 -100,-75 -150,-75z"/>
+  </g>
+  <g class="laptop">
+    <path d="M150,250 h200 v100 h-200z"/>
+    <path d="M125,350 h250 v20 h-250z"/>
+  </g>
+</svg>

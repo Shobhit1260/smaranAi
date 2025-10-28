@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <style>
+    .primary { fill: #6B46C1; }
+    .secondary { fill: #4299E1; }
+    .accent { fill: #F59E0B; }
+  </style>
+  <g class="primary">
+    <path d="M250,100 c40,0 70,30 70,70 v40 h-140 v-40 c0,-40 30,-70 70,-70z"/>
+    <path d="M320,210 v30 h-140 v-30z"/>
+  </g>
+  <g class="secondary">
+    <path d="M180,240 h140 v160 h-140z"/>
+  </g>
+  <g class="accent">
+    <circle cx="250" cy="300" r="20"/>
+    <path d="M240,320 h20 v40 h-20z"/>
+  </g>
+</svg>
