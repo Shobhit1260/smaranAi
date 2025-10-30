@@ -57,7 +57,6 @@ exports.getMyProfile=async(req,res)=>{
 exports.hasCompletedProfile = async (req, res) => {
     try {
         const userId = req.user.id;
-        console.log("Checking profile completion for userId:", userId);
         const hasCompleted = await profileService.checkProfileCompletion(userId);
         return ResponseHandler.success(res, { hasCompleted });
     } catch (error) {

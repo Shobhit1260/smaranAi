@@ -19,7 +19,6 @@ const AuthCallback = () => {
           throw new Error('No session found');
         }
 
-        console.log('Session retrieved:', session);
 
         // Store session data
         setSession({
@@ -33,7 +32,7 @@ const AuthCallback = () => {
             isProfileComplete: session.user.user_metadata?.has_completed_profile || false
           }
         });
-       console.log('User metadata:', session.access_token);
+       
         // Redirect to profile creation
         const response=await fetch(`${Backend_Url}/api/profile/hasCompletedProfile`,{
           headers: {
@@ -41,14 +40,13 @@ const AuthCallback = () => {
           }
         });
         const data =await response.json();
-        console.log("hasCompletedProfile response data:",data);
-        const hasCompletedProfile=data.hasCompleted;
-
+       
+        const hasCompletedProfile=data.data.hasCompleted.isComplete;
         if (!hasCompletedProfile) {
-        navigate('/createProfile', { replace: true });
+          navigate('/createProfile', { replace: true });
         }
-        else{
-          navigate('/dashboard', { replace: true });
+        else{ 
+          navigate('/updateProfile', { replace: true });
         }
       } catch (error) {
         console.error('Auth callback error:', error);

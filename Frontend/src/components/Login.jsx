@@ -95,11 +95,11 @@ const Login = () => {
       }
 
       const profileData = await profileResponse.json();
-      
-      if (!profileData.isComplete) {
-        navigate('/role-selection');
+      const iscomplete = profileData.data.hasCompleted.isComplete;
+      if (!profileData.iscomplete) {
+        navigate('/createProfile',{ replace: true });
       } else {
-        navigate('/createProfile');
+        navigate('/updateProfile',{ replace: true });
       }
     } catch (error) {
       console.error('Login error:', error);

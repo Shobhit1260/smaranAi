@@ -1,8 +1,9 @@
 const { supabase,supabaseAdmin } = require('../config/supabase');
 
 // @ts-ignore
-exports.createProfile=async(userId,email,name,grade,location,school,role,subjects,language_preference,mentor)=>{
+exports.createProfile=async(userId,email,name,grade,location,school,role,subjects,language_preference)=>{
    try{
+      // Use supabaseAdmin for backend operations
       const {data,error}=await supabase
       .from('profiles')
       .insert([{
@@ -14,9 +15,13 @@ exports.createProfile=async(userId,email,name,grade,location,school,role,subject
         role,
         subjects,
         language_preference,
-        mentor
+       
       }]).select().single();
-      if(error) throw error;
+
+      if(error) {
+        console.error('Create profile error:', error);
+        throw error;
+      }
       return data;
    }
    catch(error){
@@ -26,12 +31,20 @@ exports.createProfile=async(userId,email,name,grade,location,school,role,subject
 }
 exports.getProfile=async(userId)=>{
     try {
-      const { data, error } = await supabase
+      // Use supabaseAdmin to bypass RLS since this is a backend operation
+      const { data, error } = await supabaseAdmin
         .from('profiles')
         .select('*')
-        .eq('id', userId);
+        .eq('id', userId)
+        .single(); // Get single result instead of array
         
-      if (error) throw error;
+      if (error) {
+        console.log('Supabase query error:', error); // More detailed logging
+        throw error;
+      }
+      
+      // Log the result for debugging
+      console.log('Profile data found:', data);
       return data;
     } catch (error) {
       console.error('Get profile error:', error);
@@ -43,13 +56,20 @@ exports.getProfile=async(userId)=>{
 // @ts-ignore
 exports.updateProfile=async(userId, updates)=> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('profiles')
-        .update(updates)
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', userId)
-        .select();
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update profile error:', error);
+        throw error;
+      }
       return data;
     } catch (error) {
       console.error('Update profile error:', error);
@@ -57,16 +77,16 @@ exports.updateProfile=async(userId, updates)=> {
     }
 };
 
+
 // Check if user has completed their profile setup
 exports.checkProfileCompletion = async (userId) => {
     try {
-        // Get the user's profile
-        const { data: profile, error } = await supabase
+        // Get the user's profile using supabaseAdmin
+        const { data: profile, error } = await supabaseAdmin
             .from('profiles')
             .select('*')
             .eq('id', userId)
             .single();
-        console.log("Profile data fetched for completion check:", profile);
         if (error) {
             if (error.code === 'PGRST116') { // Record not found
                 return {
@@ -75,6 +95,13 @@ exports.checkProfileCompletion = async (userId) => {
                 };
             }
             throw error;
+        }
+
+        if (!profile) {
+            return {
+                isComplete: false,
+                message: 'Profile not found'
+            };
         }
 
         // Check if all required fields are present
@@ -89,15 +116,51 @@ exports.checkProfileCompletion = async (userId) => {
         ];
 
         const missingFields = requiredFields.filter(field => {
-            // Special handling for arrays (subjects and language_preference)
-            if (Array.isArray(profile[field])) {
-                return !profile[field] || profile[field].length === 0;
+            const value = profile[field];
+            if (Array.isArray(value)) {
+                return !value || value.length === 0;
             }
-            // For other fields, check if they exist and are not empty strings
-            return !profile[field] || profile[field].trim() === '';
+            return !value || (typeof value === 'string' && value.trim() === '');
         });
-        console.log("Missing fields:", missingFields);
+        
         const isComplete = missingFields.length === 0;
+        
+        if (isComplete) {
+            try {
+                // Use supabaseAdmin for consistency
+                const { data, error } = await supabaseAdmin
+                    .from('profiles')
+                    .update({
+                        profile_completed: true,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userId)
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Error updating profile completion status:', error);
+                    throw error;
+                }
+                console.log('Profile marked as complete:', data);
+            } catch (error) {
+                console.error('Error updating profile completion status:', error);
+                throw error;
+            }
+        } else {
+            // If profile is incomplete, ensure profile_complete is false
+            try {
+                await supabaseAdmin
+                    .from('profiles')
+                    .update({
+                        profile_completed: false,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userId);
+            } catch (error) {
+                console.error('Error updating profile incompletion status:', error);
+            }
+        }
 
         return {
             isComplete,

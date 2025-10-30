@@ -36,7 +36,6 @@ exports.signInWithGoogle = async () => {
           scopes: 'email profile'
         }
       });
-      console.log("data in signInWithGoogle service:",data);
       if (error) {
         console.error('Supabase Google OAuth error:', error);
         throw error;
