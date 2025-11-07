@@ -7,6 +7,7 @@ import UpdateProfile from './components/UpdateProfile';
 import AuthCallback from './components/AuthCallback';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import StudentDashboard from './Pages/Studentdashboard';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/studentdashboard" element={<StudentDashboard />} />
         </Routes>
       </div>
     </Router>
